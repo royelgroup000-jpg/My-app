@@ -17,7 +17,14 @@ jobs:
       - name: Build APK
         run: |
           yes | buildozer init || true
-          buildozer android debug
+          sed -i 's/#*android.accept_sdk_license_agreements.*/android.accept_sdk_license_agreements = True/' buildozer.spec
+          grep -q "accept_sdk_license" buildozer.spec || echo "android.accept_sdk_license_agreements = True" >> buildozer.spec
+          yes | buildozer -v android debug || true
+          mkdir -p ~/.buildozer/android/platform/android-sdk/licenses
+          echo "8933bad161af4178b1185d1a37fbf41ea5269c55" > ~/.buildozer/android/platform/android-sdk/licenses/android-sdk-license
+          echo "d56f5187479451eabf01fb78af6dfcb131a6481e" >> ~/.buildozer/android/platform/android-sdk/licenses/android-sdk-license
+          echo "24333f8a63b6825ea9c5514f83c1059b8ea731d8" >> ~/.buildozer/android/platform/android-sdk/licenses/android-sdk-license
+          yes | buildozer -v android debug
       - name: Upload APK
         uses: actions/upload-artifact@v4
         with:
